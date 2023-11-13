@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* interval between updates (in ms) */
-const unsigned int interval = 250;
+const unsigned int interval = 100;
 
 /* text to show if no value can be retrieved */
 static const char unknown_str[] = "n/a";
@@ -31,7 +31,7 @@ static const char unknown_str[] = "n/a";
  * hostname            hostname                        NULL
  * ipv4                IPv4 address                    interface name (eth0)
  * ipv6                IPv6 address                    interface name (eth0)
- * kernel_release      `uname -r`                      NULL
+ * kernel_release      `uname -r`                       NULL
  * keyboard_indicators caps/num lock indicators        format string (c?n?)
  *                                                     see keyboard_indicators.c
  * keymap              layout (variant) of current     NULL
@@ -65,5 +65,15 @@ static const char unknown_str[] = "n/a";
  */
 static const struct arg args[] = {
 	/* function format          argument */
-	{ datetime, "%s",           " %A ~ %b %d ~ %r " },
+	{ run_command, " %s", "\
+		amixer get Master |\
+		grep -m1 -o -e \'\\[.*\\]\' |\
+		sed -e \'s/[^a-z]//g\' -e \'s/on/󰕾/g\' -e \'s/off/󰖁/g\' | cat -"
+	},
+	{ run_command, " %s", "\
+		amixer get Master |\
+		grep -m1 -o -e \'\\[.*%\\]\' |\
+		sed -e \'s/[^0-9%]*//g\' | cat -"
+	},
+	{ datetime, "%s", " ~ %A, %d %B ~ %r " },
 };
